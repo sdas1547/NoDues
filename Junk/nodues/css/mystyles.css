@@ -1,0 +1,167 @@
+.row-header
+{
+    margin:0px auto;
+    padding:0px auto;
+}
+.row-content
+{
+    
+    margin:0px auto;
+    padding: 50px 0px 50px 0px;
+    border-bottom:1px ridge;
+    min-height:400px;
+    
+}
+
+
+#file
+{
+font-family:Prociono;
+font-size:2em;
+}
+
+
+.navbar-brand
+{
+margin:0px auto;
+padding:0px 0px 0px 0px;
+
+}
+.row-footer
+{
+    background-color:#d3d3d3;
+    margin:0px;
+    padding:0px 0px 0px 0px;
+    max-height:160px;
+}
+
+.jumbotron
+{
+
+    padding: 70px  70px 30px;
+    margin:0px auto;
+    background:#EB7260;
+    color:floralwhite;
+   
+}
+
+address
+{
+    font-size: 80%;
+    margin:0px;
+    color:#0f0f0f;
+}
+body
+{
+    align-content:center;
+    padding:0px 0px 0px 0px;
+    z-index:0;
+}
+ 
+.navbar 
+{
+    height: 40px;
+}
+.navbar-inverse
+{
+    background:"#1a1a1a"
+    height:"200px";
+}
+.navbar-inverse .navbar-nav > .active > a,
+.navbar-inverse .navbar-nav > .active > a:hover,
+.navbar-inverse .navbar-nav > .active > a:focus
+{
+    
+    color:#ffffff;
+    
+}
+.navbar-inverse .navbar-nav > .open > a,
+.navbar-inverse .navbar-nav > .open > a:hover,
+.navbar-inverse .navbar-nav > .open > a:focus
+{
+    color:#ffffff;
+    
+}
+
+.navbar-inverse .navbar-nav .open .dropdown-menu >li>a,
+.navbar-inverse .navbar-nav .open .dropdown-menu
+{
+    background-color:indianred;
+    color:#eeeeee;
+}
+.navbar-inverse .navbar-nav .open .dropdown-menu >li>a:hover 
+{
+    color:#000000;
+}
+
+.tab-content
+{
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+}
+.affix
+{
+    top:100px;
+}
+
+.carousel
+{
+    background:#1A237E;
+    
+}
+.carousel .item
+{
+    height:500px;
+}
+.item img
+{
+    position:absolute;
+    top:0;
+    left:0;
+    min-height:300px;
+}
+#carouselButtons
+{
+    right:0px;
+    bottom:0px;
+    position:absolute;
+    
+}
+/*.breadcrumb {background: rgba(224, 206, 206, 1); border: 2px solid rgba(143, 79, 79, 1); border-radius: 7px; display: block;}
+.breadcrumb li {font-size: 15px;}
+.breadcrumb a {color: rgba(66, 139, 202, 1);}
+.breadcrumb a:hover {color: rgba(42, 100, 150, 1);}
+.breadcrumb>.active {color: rgba(153, 153, 153, 1);}
+.breadcrumb>li+li:before {color: rgba(232, 12, 12, 1); content: "\003E\003E\00a0";}
+
+*/
+@media (min-width: 768px) {
+  .sidebar-nav .navbar .navbar-collapse {
+    padding: 0;
+      position: fixed;
+    max-height: none;
+  }
+  .sidebar-nav .navbar ul {
+    float: none;
+  }
+  .sidebar-nav .navbar ul:not {
+    display: block;
+  }
+  .sidebar-nav .navbar li {
+    float: none;                                                       
+    display: block;
+  }
+  .sidebar-nav .navbar li a {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+
+#submission
+{
+    font-family: cursive;
+    font-size: 40px;
+    color: black;
+}
