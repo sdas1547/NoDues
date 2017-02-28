@@ -96,7 +96,7 @@
 									'$amount', 
 									'$description', 
 									now(), 
-									'0000-00-00 00:00:00', 
+									now(), 
 									'P', 
 									'$entry_num', 
 									'$emp_no', 
@@ -185,7 +185,7 @@
 				</div>
 				
 				<div class="col-sm-offset-1 col-sm-3">
-					<button class="form-control btn btn-danger" type="reset" name="cancel_button">Cancel</button>
+					<button class="form-control btn btn-danger" type="reset" name="cancel_button" onclick="history.go(-1);">Back</button>
 				</div>
 			</div>			
 		</form>	

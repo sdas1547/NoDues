@@ -92,7 +92,7 @@
 															dueID, generated_time, name, amount , lab_name
 															FROM $lab_details, $employee_details, $student_pending
 																WHERE $student_pending.lab_code = $lab_details.lab_code
-																AND $student_pending.employee_uID = $employee_details.employee_uID ORDER BY generated_time;";
+																AND $student_pending.employee_uID = $employee_details.employee_uID ORDER BY generated_time DESC;";
 
 									$pending_drop_sql = "DROP VIEW $student_pending, $labDues, $labHeader, $lab_details, $employee_details;";
 
@@ -190,7 +190,7 @@
 																requested_time, requested_comment , amount , lab_name
 																FROM $req_lab_details, $req_details, $student_requested
 																	WHERE $student_requested.lab_code = $req_lab_details.lab_code
-																	AND $req_details.dueID = $student_requested.dueID ORDER BY generated_time;";
+																	AND $req_details.dueID = $student_requested.dueID ORDER BY requested_time DESC;";
 
 									$requested_drop_sql = "DROP VIEW $student_requested, $req_labDues, $req_labHeader, $req_lab_details, $req_dueIDs, $req_details;";
 									
@@ -226,7 +226,7 @@
 											<td>".$data["requested_time"]."</td>
 											<td>".$data["requested_comment"]."</td><td>";
 								?>
-											<a href="./edit_request.php?due_id=<?php echo $data["dueID"];?>">
+											<a href="./make_request.php?due_id=<?php echo $data["dueID"];?>">
 												Edit Request
 											</a>
 								<?php
@@ -287,7 +287,7 @@
 																approved_time, approved_comment , amount , lab_name
 																FROM $approve_lab_details, $approve_details, $student_approved
 																	WHERE $student_approved.lab_code = $approve_lab_details.lab_code
-																	AND $approve_details.dueID = $student_approved.dueID ORDER BY generated_time;";
+																	AND $approve_details.dueID = $student_approved.dueID ORDER BY generated_time DESC;";
 
 									$approved_drop_sql = "DROP VIEW $student_approved, $approve_labDues, $approve_labHeader, $approve_lab_details, $approve_dueIDs, $approve_details;";
 									
@@ -322,7 +322,7 @@
 												<td>".$data["lab_name"]."</td>
 												<td>".$data["approved_time"]."</td>
 												<td>".$data["approved_comment"]."</td>";
-											echo "<td><a href='./view_due.php?data=".$data["dueID"]."'>View</a>";
+											echo "<td><a href='./view_due.php?due_id=".$data["dueID"]."'>View</a>";
 											echo "</td></tr>";
 										}	
 										echo "</table>";
@@ -339,7 +339,6 @@
 			</div>
 		</div>		
 		<script src="script/jquery.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		
 	</body>

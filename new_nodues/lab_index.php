@@ -11,6 +11,8 @@
 	</head>
 	<?php
 		session_start();
+		ini_set('session.cache_limiter','public');
+		session_cache_limiter(false);
 		include ("./header.php");
 		include("./dbinfo.inc");
 		if(!isset($_SESSION["emp_no"])){
@@ -82,12 +84,13 @@
 															generated_time, modified_time, status, entry_number
 															FROM dues
 																WHERE employee_uID = '$emp_no'
-																AND lab_code = 'col01';";
+																AND lab_code = '$lab_code';";
 
 									$pending_sql = "SELECT dueID, entry_number,amount,
 														generated_time, description
 														FROM $dues_details
-															WHERE status = 'P';";
+															WHERE status = 'P'
+																ORDER BY generated_time DESC;";
 									$pending_drop_sql = "DROP VIEW $dues_details;";
 
 									$pending_result1 = $con->query($pending_sql1);
@@ -119,7 +122,8 @@
 										?>
 												<td><a href="./edit_record.php?due_id=<?php echo $pending_data["dueID"];?>&lab_id=<?php echo $id;?>">Edit</a>/ <a href="./delete_record.php?due_id=<?php echo $pending_data["dueID"];?>&lab_id=<?php echo $id;?>">Delete</a></td>
 										<?php
-												echo "<td><a href='./view_due.php?due_id=".$pending_data["dueID"]."'>View</a>  </td></tr>";												
+												echo "<td><a href='./view_due.php?due_id=".$pending_data["dueID"]."'>View</a></td>";
+												echo "</tr>";												
 												
 											}
 										?>
@@ -140,7 +144,7 @@
 															generated_time, modified_time, status, entry_number
 															FROM dues
 																WHERE employee_uID = '$emp_no'
-																AND lab_code = 'col01';";
+																AND lab_code = '$lab_code';";
 
 									$duesr_details = "duesr_details".$emp_no;
 									$pending_sql2 = "CREATE OR REPLACE VIEW $duesr_details AS
@@ -150,7 +154,8 @@
 																WHERE $dues_details.dueID = duesra.dueID
 																AND status = 'R';";
 									$pending_sql = "SELECT * 
-														FROM $duesr_details;";
+														FROM $duesr_details 
+															ORDER BY requested_time DESC;";
 
 									$duesr_drop_sql = "DROP VIEW $dues_details, $duesr_details;";
 
@@ -169,7 +174,7 @@
 											<th>Amount (in Rs.)</th>
 											<th>Requested Time</th>
 											<th>Student Response</th>
-											<th>Edit/Delete</th>
+											<th>Approve</th>
 											<th>View</th>
 										</tr>
 										<?php
@@ -208,12 +213,13 @@
 															generated_time, modified_time, status, entry_number
 															FROM dues
 																WHERE employee_uID = '$emp_no'
-																AND lab_code = 'col01';";
+																AND lab_code = '$lab_code';";
 
 									$pending_sql = "SELECT dueID, entry_number,amount, generated_time,
 														modified_time, description
-														FROM ".$dues_details."
-															WHERE status ='C';";
+														FROM $dues_details
+															WHERE status ='C' 
+																ORDER BY generated_time DESC;";
 									$cancelled_drop_sql = "DROP VIEW $dues_details;";
 
 									$con->query($pending_sql1);
@@ -225,10 +231,10 @@
 									<table class="table table-responsive table-striped table-hover" style="font-size:15">
 										<tr>
 											<th>S. No</th>
-											<th>Entry Number</th>																						
-											<th>Amount(in Rs.)</th>
-											<th>Description</th>
+											<th>Entry Number</th>																	
 											<th>Added on</th>
+											<th>Amount</th>
+											<th>Description</th>
 											<th>Cancelled on</th>											
 											<th> View</th>
 										</tr>
@@ -238,7 +244,7 @@
 												echo "<tr class=data>
 												<td>".$i++."</td>
 												<td>".$pending_data["entry_number"]."</td>
-												<td>".$pending_data["generated_time"]."</td>												
+												<td>".$pending_data["generated_time"]."</td>										
 												<td>".$pending_data["amount"]."</td>
 												<td>".$pending_data["description"]."</td>
 												<td>".$pending_data["modified_time"]."</td>";
@@ -263,7 +269,7 @@
 															generated_time, modified_time, status, entry_number
 															FROM dues
 																WHERE employee_uID = '$emp_no'
-																AND lab_code = 'col01';";
+																AND lab_code = '$lab_code';";
 
 									$duesa_details = "duesa_details".$emp_no;
 									$pending_sql2 = "CREATE OR REPLACE VIEW $duesa_details AS
@@ -273,7 +279,8 @@
 																WHERE $dues_details.dueID = duesra.dueID
 																AND status = 'A';";
 									$pending_sql = "SELECT * 
-														FROM $duesa_details;";
+														FROM $duesa_details
+															ORDER BY approved_time DESC;";
 
 									$approved_drop_query = "DROP VIEW $dues_details, $duesa_details;";
 

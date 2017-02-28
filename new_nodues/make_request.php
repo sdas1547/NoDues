@@ -75,13 +75,13 @@
 
 			$pending_drop_sql = "DROP VIEW $student_pending, $labDues, $labHeader, $lab_details, $employee_details;";
 
-			$pending_result1 = $con->query($pending_dues_sql1);
-			$pending_result2 = $con->query($pending_dues_sql2);
-			$pending_result3 = $con->query($pending_dues_sql3);
-			$pending_result4 = $con->query($pending_dues_sql4);
-			$pending_result5 = $con->query($pending_dues_sql5);
+			$con->query($pending_dues_sql1);
+			$con->query($pending_dues_sql2);
+			$con->query($pending_dues_sql3);
+			$con->query($pending_dues_sql4);
+			$con->query($pending_dues_sql5);
 			$due_result = $con->query($due_query);
-			// $pending_drop_result = $con->query($pending_drop_sql);
+			$con->query($pending_drop_sql);
 			
 			while($due_data = $due_result->fetch_assoc()){
 		?>
@@ -91,8 +91,7 @@
 				</div>				
 				<div class="panel-body">
 					<?php 
-						echo "<strong>Due ID 		: </strong>".$due_data["dueID"]."<br>
-							  <strong>Department	: </strong>".$due_data["department_name"]."<br>
+						echo "<strong>Department	: </strong>".$due_data["department_name"]."<br>
 							  <strong>Lab Name		: </strong>".$due_data["lab_name"]."<br>
 							  <strong>Description	: </strong>".$due_data["description"]."<br>
 							  <strong>Amount		: </strong>Rs. ".$due_data["amount"]."<br>
@@ -109,29 +108,35 @@
 						</div>
 						<?php $file_name="uploads/".$due_id."_".$_SESSION['entry_no'].'.pdf';?>
 						<div class="form-group">
-							<label class="control-lablel col-sm-1 col-xs-2"> Previous Upload:</label>
-							<div class="col-sm-11">
-								<?php 
+							<label class="control-lablel col-sm-2 col-xs-2"> Previous Upload:</label>
+							<?php 
+								if(!file_exists($file_name)){
+									echo "No uploads available";
+									}
+								else
+								{
+							?>
+								<div class="col-sm-10 col-sm-offset-2">	
+							<?php		
+								// $file11 = fopen($file_name, "r");
+								echo "<iframe src=".$file_name." width=800px height=600px/></iframe>"; 
+							?>
+							</div>
+							<?php	
+								}
+							?>
 
-									if(file_exists($file_name))
-									{
-										echo "<a href=".$file_name;
-										  echo '><img src="images/unnamed.png" alt="Not Available" height="100px;" width="100px;"></a>';
-									}
-									else
-									{
-										echo '<img src="images/images.png" alt="Not Available" height="40px;" width="150px;">';
-									}
-								?>
-							</div>							
+							
+								
+														
 						</div>
-						
+
 						<input type=hidden value=<?php echo $due_id;?> name="did">
 
 						<div class="form-group">
 							<label class="control-lablel col-sm-1 col-xs-2">Remark:</label>
-							<div class="col-sm-11">
-								<textarea class="form-control" rows="2" column="40" name="comment" value="<?php echo $comment; ?>"></textarea>
+							<div class="col-sm-10">
+								<textarea class="form-control" required rows="2" column="40" name="comment" value="<?php echo $comment; ?>"></textarea>
 							</div>							
 						</div>
 						<div class="form-group">
@@ -140,7 +145,7 @@
 							</div>
 							
 							<div class="col-sm-offset-2 col-sm-3">
-								<button class="form-control btn btn-danger" type="reset" name="cancel_button" onclick="history.go(-1);">Cancel</button>
+								<button class="form-control btn btn-danger" type="reset" name="cancel_button" onclick="history.go(-1);">Back</button>
 							</div>
 						</div>						
 					</form>

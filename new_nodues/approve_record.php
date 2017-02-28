@@ -26,142 +26,175 @@
 		
 		if(isset($_GET["due_id"]) && isset($_SESSION["emp_no"])){
 			$due_id = $_GET["due_id"];
-			$emp_id = $_SESSION["emp_no"];
-			
-			$due_sql="SELECT * FROM dues WHERE due_id='$due_id' AND created_by='$emp_id'";
-			$due_result = $con->query($due_sql);
-			if(!$due_result){
-				echo "zero";
-			}
-			else{
-				while($row_data = $due_result->fetch_assoc()){
-					$lab_id = $row_data["lab_id"];
-					$dept_name = $row_data["department"];
-					$entry_num = $row_data["entry_number"];
-					$description = $row_data["description"];
-					$amount = $row_data["amount"];
-					$filename="./uploads/".$due_id."_".$entry_num.".pdf";
-				}
-			}
+			$emp_no = $_SESSION["emp_no"];
+			$lab_id = $_GET["lab_id"];
+
 		}		
 		
 		$correct_entry = false;
 		if($_SERVER["REQUEST_METHOD"]=="POST"){
-			$correct_entry = true;				
+			$correct_entry = true;	
+			$remark = $_POST["remark"];			
 		}
 		if($correct_entry){
-			$delete_rec_sql = "UPDATE dues SET `current_status` = 'Y', `modified_time`= now(), `closed_time` = now() WHERE due_id='$due_id' AND created_by='$emp_id'";
-			$delete_result = $con->query($delete_rec_sql);
-			if ($delete_result){
-				echo "Record Has been Successfully Approved;";
-				//header("Location: http://localhost/new_nodues/lab_index2.php");
+			$con->query("SET AUTOCOMMIT = 0");
+			$con->query("START TRANSACTION");
+			$approve_sql1 = "UPDATE dues SET
+								status = 'A'
+									WHERE dueID = $due_id;";
+
+			$approve_sql = "UPDATE duesra SET
+								approved_comment = '$remark',
+								approved_time = now()
+									WHERE dueID = $due_id;";
+			
+			$approve_result1 = $con->query($approve_sql1);
+			$approve_result = $con->query($approve_sql);			
+			if ($approve_result1 && $approve_result){
+				$con->query("COMMIT");
+				// echo "Record Has been Successfully Approved;";
+				header("Location: http://testportal.iitd.ac.in/new_nodues/lab_index.php?id=$lab_id");
 				exit();
+			}
+			else{
+				$con->query("ROLLBACK");
+				// die;
+				header("Location: http://testportal.iitd.ac.in/new_nodues/lab_index.php?id=$lab_id");
 			}
 		}
 	?>
 	
 	
 	<div class="container">
-		<hr>
-		<h3 class="col-sm-offset-1">Delete record:</h3>
-		<br>
+		<?php
+			$student_pending = "student_pending".$emp_no;
+			$pending_dues_sql1 = "CREATE OR REPLACE VIEW $student_pending AS
+										SELECT dueID, amount, description, entry_number,
+											generated_time, employee_uID, lab_code, modified_time
+											FROM dues
+												WHERE dueID = $due_id
+												AND employee_uID = '$emp_no'
+												AND status = 'R';";
+			$labDues = "labDues".$emp_no;
+			$pending_dues_sql2 = "CREATE OR REPLACE VIEW $labDues AS
+										SELECT DISTINCT lab_code, employee_uID
+											FROM $student_pending;";
+
+			$labHeader = "labHeader".$emp_no;
+			$pending_dues_sql3 = "CREATE OR REPLACE VIEW $labHeader AS
+									SELECT DISTINCT lab_info.lab_code, department_code, address
+										FROM lab_info, $labDues
+											WHERE lab_info.lab_code = $labDues.lab_code;";										
+
+			$lab_details = "lab_details".$emp_no;
+			$pending_dues_sql4 = "CREATE OR REPLACE VIEW $lab_details AS
+									SELECT a1.full_form AS lab_name, 
+									a2.full_form AS department_name,
+									lab_code, address
+										FROM accronym AS a1, accronym AS a2, $labHeader
+											WHERE a1.code = lab_code
+											AND a2.code = department_code;";
+
+			$employee_details = "employee_details".$emp_no;
+			$pending_dues_sql5 = "CREATE OR REPLACE VIEW $employee_details AS
+									SELECT DISTINCT name as employee_name, uID as employee_uID from user_table
+										WHERE user_table.uID = '$emp_no';";
+
+			$student_details = "student_details".$emp_no;
+			$pending_dues_sql6 = "CREATE OR REPLACE VIEW $student_details AS
+									SELECT DISTINCT name as student_name, entry_number from user_table, $student_pending
+										WHERE user_table.uID = entry_number;";
+
+			$due_query = "SELECT description,
+								$student_pending.dueID, generated_time, modified_time, $student_details.entry_number, student_name,
+								employee_name, amount , lab_name, department_name
+								FROM $lab_details, $employee_details, $student_pending, $student_details
+									WHERE $student_pending.lab_code = $lab_details.lab_code
+									AND $student_pending.employee_uID = $employee_details.employee_uID ORDER BY generated_time;";
+
+			$pending_drop_sql = "DROP VIEW $student_pending, $labDues, $labHeader, $lab_details, $employee_details, $student_details;";
+
+			// echo $pending_dues_sql1."<br>";
+			// echo $pending_dues_sql2."<br>";
+			// echo $pending_dues_sql3."<br>";
+			// echo $pending_dues_sql4."<br>";
+			// echo $pending_dues_sql5."<br>";
+			// echo $pending_dues_sql6."<br>";
+			// echo $due_query;
+
+
+			$con->query($pending_dues_sql1);
+			$con->query($pending_dues_sql2);
+			$con->query($pending_dues_sql3);
+			$con->query($pending_dues_sql4);
+			$con->query($pending_dues_sql5);
+			$con->query($pending_dues_sql6);
+			$due_result = $con->query($due_query);
+			$con->query($pending_drop_sql);
 			
-		<form class="form-horizontal" method="post" action="">
-			<div class="form-group">
-				<label class="control-lablel col-sm-offset-1 col-sm-2">Entry No:</label>
-				<div class="col-sm-3">
-					<input class="form-control" type="text" name="entry_num" value="<?php echo $entry_num;?>" readonly>
+			while($due_data = $due_result->fetch_assoc()){
+
+		?>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>APPROVE RECORD</strong>
+				</div>				
+				<div class="panel-body">
+					<?php 
+						echo "<strong>Due ID 		: </strong>".$due_data["dueID"]."<br>
+							  <strong>Entry Number	: </strong>".$due_data["entry_number"]."<br>
+							  <strong>Student Name	: </strong>".$due_data["student_name"]."<br>
+							  <strong>Lab Name		: </strong>".$due_data["lab_name"]."<br>
+							  <strong>Lab Department: </strong>".$due_data["department_name"]."<br>							  
+							  <strong>Description	: </strong>".$due_data["description"]."<br>
+							  <strong>Amount		: </strong>Rs. ".$due_data["amount"]."<br>
+							  <strong>Added by		: </strong>".$due_data["employee_name"]."<br>
+							  <strong>Added on		: </strong>".$due_data["generated_time"]."<br>
+							  <strong>Last Modified	: </strong>".$due_data["modified_time"]."<br>
+							  <strong>Uploaded File : </strong>";
+
+					?>
+					<form class="form-horizontal" method="post" action="">
+						<div class="form-group">
+							<div class = "col-sm-offset-2">
+								<?php 
+									$filename="./uploads/".$due_id."_".$due_data["entry_number"].".pdf";
+									if(FILE_EXISTS($filename))
+									{
+										echo "<embed src=".$filename." width=800px height=600px/>";
+									}
+									else echo "No file available";
+						 		 ?>
+						 	</div>
+						</div>
+						<br>
+						<br>
+
+						<div class="form-group">
+							<label class="control-lablel col-sm-1">Remark:</label>
+							<div class="col-sm-10">
+								<textarea class="form-control" rows="2" required column="40" name="remark"></textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-sm-offset-2 col-sm-3">
+								<button class="form-control btn btn-success" type="submit" name="approve_button">Confirm Approve</button>
+							</div>
+
+							<div class="col-sm-offset-2 col-sm-3">
+								<button class="form-control btn btn-danger" type="reset" name="cancel_button" onclick="history.go(-1);">Back</button>
+							</div>
+						</div>
+					</form>
 				</div>
 			</div>
-			
-			<div class="form-group">
-				<label class="control-lablel col-sm-offset-1 col-sm-2">Department:</label>
-				<div class="col-sm-3">
-					<input class="form-control" type="text" name="department" value="<?php echo $dept_name;?>" readonly>
-				</div>
-			</div>
-			
-			<div class="form-group">
-				<label class="control-lablel col-sm-offset-1 col-sm-2">Lab Id:</label>
-				<div class="col-sm-3">
-					<input class="form-control" type="text" name="lab_id" value="<?php echo $lab_id;?>" readonly>
-				</div>
-			</div>
-			
-			<div class="form-group">
-				<label class="control-lablel col-sm-2 col-sm-offset-1">Type:</label>
-				<div class="col-sm-3">
-					<select class="form-control">
-						<option name="type" value="<?php echo $type;?>">Select type</option>
-						<option name="type" value="breakage">Breakage</option>
-						<option name="type" value="others">Others</option>
-					</select>
-				</div>
-				<span class="error">* <?php echo $typeErr; ?> </span>
-			</div>
-			
-			<div class="form-group">
-				<label class="control-lablel col-sm-2 col-sm-offset-1">Description:</label>
-				<div class="col-sm-7">
-					<textarea class="form-control" rows="5" column="40" name="description" readonly><?php echo $description; ?></textarea>
-				</div>
-			</div>
-			
-			<div class="form-group">
-				<label class="control-lablel col-sm-2 col-sm-offset-1">Amount:</label>
-				<div class="col-sm-3">
-					<input class="form-control" placeholder="Enter Amount" type="number" min="1" name="amount" value="<?php echo $amount;?>" readonly>
-				</div>
-			</div>
-
-
-			<div class="form-group">
-				<label class="control-lablel col-sm-2 col-sm-offset-1">Uploaded File</label>
-				<div class="col-sm-9">
-				
-					<?php if(FILE_EXISTS($filename))
-					{
-						echo "<embed src=".$filename." width=800px height=600px/>";
-
-					}
-					else echo "No file available";
-
-			  ?>
-
-
-				</div>
-			</div>
-
-			
-			
-
-			<br>
-			<br>
-			<div class="form-group">
-				<div class="col-sm-offset-3 col-sm-3">
-					<button class="form-control btn btn-primary" type="submit" name="add_due_button">Confirm Approve</button>
-				</div>
-				
-				<div class="col-sm-offset-1 col-sm-3">
-					<button class="form-control btn btn-danger" type="reset" name="cancle_button">Cancel</button>
-				</div>
-			</div>
-			
-
-
-
-
-
-
-
-
-		</form>
+		<?php
+			}
+		?>
 		<hr>
 	
 	</div>
-	
-	
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
+	<script src="script/jquery.js"></script>
+	<script src="js/bootstrap.min.js"></script>
 	</body>	
 </html>

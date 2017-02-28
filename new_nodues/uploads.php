@@ -10,13 +10,16 @@
 
 	<?php
 		session_start();
+		ini_set('session.cache_limiter','public');
+		session_cache_limiter(false);
 		include("./dbinfo.inc");
-			$due_id=$_POST['did'];
-		$target_dir = "./uploads/";
-		
+		$due_id=$_POST['did'];
+
+		$target_dir = "./uploads/";		
 		$extension=pathinfo($_FILES["file_to_upload"]["name"])['extension'];
 		$target_file = $target_dir.$due_id.'_'.$_SESSION['entry_no'].'.'.$extension;
 		$uploadOk=1;
+		$comment = $_POST["comment"];
 		//checking whether file already exists or not
 		/**if(file_exists($target_file)){
 			echo "File already exists.<br>";
@@ -36,13 +39,11 @@
 		else{
 
 
-			if (file_exists($target_file)) {
-    //echo "Sorry, file already exists.";
-    unlink($target_file);
-    //echo "deleted";
-    
-}
-			
+		if (file_exists($target_file)) {
+		     unlink($target_file);
+		    //echo "deleted";
+		}
+				
 			if(move_uploaded_file($_FILES["file_to_upload"]["tmp_name"],$target_file)){
 				//echo "The file ".basename($_FILES["file_to_upload"]["name"])." has been uploaded.";
 				$due_id = $_GET["due_id"];
@@ -57,8 +58,8 @@
 									requested_comment,
 									requested_time) VALUES(
 									$due_id,
-									'new request',
-									now());";
+									'$comment',
+									now()) ON DUPLICATE KEY UPDATE requested_comment = '$comment', requested_time = now();";
 				$request_result1 = $con->query($request_sql1);
 				$request_result = $con->query($request_sql);
 
@@ -80,7 +81,7 @@
 		
 	?>
 	<body>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="script/jquery.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 	</body>
 </html>

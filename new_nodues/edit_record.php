@@ -28,6 +28,7 @@
 			$id = $_GET["lab_id"];
 			$due_id = $_GET["due_id"];
 			$emp_id = $_SESSION["emp_no"];
+
 			if(!isset($_SESSION["lab_id".$id])){
 				echo "Data Not found.";
 				die;
@@ -36,7 +37,7 @@
 				$slab_id = $_SESSION["lab_id".$id];
 			}
 			
-			$due_sql="SELECT * FROM dues WHERE due_id='$due_id' AND created_by='$emp_id' AND lab_id='$slab_id'";
+			$due_sql="SELECT * FROM dues WHERE dueID='$due_id' AND employee_uID='$emp_id' AND lab_code='$slab_id'";
 			$due_result = $con->query($due_sql);
 			if(!(mysqli_num_rows($due_result)>0)){
 				echo "No data found.";
@@ -44,8 +45,8 @@
 			}
 			else{
 				while($row_data = $due_result->fetch_assoc()){
-					$lab_id = $row_data["lab_id"];
-					$dept_name = $row_data["department"];
+					$lab_name = $_SESSION["lab_name".$id];
+					$department_name = $_SESSION["department_name".$id];
 					$entry_num = $row_data["entry_number"];
 					$description = $row_data["description"];
 					$amount = $row_data["amount"];
@@ -57,14 +58,7 @@
 		
 		if($_SERVER["REQUEST_METHOD"]=="POST"){
 			$correct_entry = true;				
-			if(empty($_POST["type"])){
-				$typeErr = "Choose one type";
-				//$correct_entry = false;
-			}
-			else{
-				$type = test_input($_POST["type"]);
-			}
-			
+					
 			if(empty($_POST["description"])){
 				$descErr = "Required Field";
 				$correct_entry = false;
@@ -82,12 +76,20 @@
 			}
 		}
 		
+		// echo $correct_entry;
 		if($correct_entry){
-			$update_rec_sql = "UPDATE dues SET `amount` = '$amount', `description` = '$description', `modified_time` = now(), `closed_time`= now() WHERE due_id='$due_id' AND created_by='$emp_id'";
+			$update_rec_sql = "UPDATE dues
+									 SET amount = '$amount', 
+									 	description = '$description', 
+									 	modified_time = now() 
+									 		WHERE dueID='$due_id' 
+									 		AND employee_uID='$emp_id' 
+									 		AND status = 'P'";
+
 			$update_result = $con->query($update_rec_sql);
 			if ($update_result){
-				//echo "Record Has been Successfully Updated;";
-				header("Location: http://testportal.iitd.ac.in/new_nodues/lab_index2.php?id=$id");
+				// echo "Record Has been Successfully Updated;";
+				header("Location: http://testportal.iitd.ac.in/new_nodues/lab_index.php?id=$id");
 				exit();
 				
 			}
@@ -104,51 +106,55 @@
 	?>
 	
 	
-	<div class="container">
-	
+	<div class="container">	
 		<h3 class="col-sm-offset-1">Edit record:</h3>
 		<p><span class="col-sm-offset-1 error"> * Required field. </span></p>
-		<br>
-			
+		<br>	
+
 		<form class="form-horizontal" method="post" action="">
 			<div class="form-group">
 				<label class="control-lablel col-sm-offset-1 col-sm-2">Entry No:</label>
 				<div class="col-sm-3">
-					<input class="form-control" type="text" name="entry_num" value="<?php echo $entry_num;?>" readonly>
+					<input class="form-control"  style="text-transform:uppercase" maxlength="11" placeholder="Enter Entry Number" type="text" name="entry_num" value="<?php echo $entry_num;?>" id="entry_n" onkeyup	="checkInput('entry_n')"  oninput="checkInput('entry_n')" readonly>
 				</div>
+				<span class="error">* <?php echo $entryErr; ?> </span>
 			</div>
-			<!--<span class="error">* <?php// echo $nameErr;?></span>-->
+			
+			<div class="form-group">
+				<label class="control-lablel col-sm-offset-1 col-sm-2">Name</label>
+				<div class="col-sm-3">
+					<input class="form-control" placeholder="Name" type="text" name="name"  id="name" readonly>
+				</div>
+				<span class="error">*  </span>
+			</div>
+
+			<div class="form-group">
+				<label class="control-lablel col-sm-offset-1 col-sm-2">Programme</label>
+				<div class="col-sm-3">
+					<input class="form-control" placeholder="category" type="text" name="cat"  id="cat" readonly>
+				</div>
+				<span class="error">*  </span>
+			</div>
+
 			
 			<div class="form-group">
 				<label class="control-lablel col-sm-offset-1 col-sm-2">Department:</label>
 				<div class="col-sm-3">
-					<input class="form-control" type="text" name="department" value="<?php echo $dept_name;?>" readonly>
+					<input class="form-control" type="text" name="department" value="<?php echo $department_name;?>" readonly>
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label class="control-lablel col-sm-offset-1 col-sm-2">Lab Id:</label>
+				<label class="control-lablel col-sm-offset-1 col-sm-2">Lab Name:</label>
 				<div class="col-sm-3">
-					<input class="form-control" type="text" name="lab_id" value="<?php echo $lab_id;?>" readonly>
+					<input class="form-control" type="text" name="lab_name" value="<?php echo $lab_name;?>" readonly>
 				</div>
-			</div>
-			
-			<div class="form-group">
-				<label class="control-lablel col-sm-2 col-sm-offset-1">Type:</label>
-				<div class="col-sm-3">
-					<select class="form-control">
-						<option name="type" value="<?php echo $type;?>">Select type</option>
-						<option name="type" value="breakage">Breakage</option>
-						<option name="type" value="others">Others</option>
-					</select>
-				</div>
-				<span class="error">* <?php echo $typeErr; ?> </span>
-			</div>
+			</div>			
 			
 			<div class="form-group">
 				<label class="control-lablel col-sm-2 col-sm-offset-1">Description:</label>
 				<div class="col-sm-7">
-					<textarea class="form-control" rows="5" column="40" name="description"><?php echo $description; ?></textarea>
+					<textarea class="form-control" rows="2" column="40" name="description"><?php echo $description; ?></textarea>
 				</div>
 				<span class="error">* <?php echo $descErr; ?> </span>
 			</div>
@@ -168,16 +174,39 @@
 				</div>
 				
 				<div class="col-sm-offset-1 col-sm-3">
-					<button class="form-control btn btn-danger" type="reset" name="cancle_button">Cancel</button>
+					<button class="form-control btn btn-danger" type="reset" name="cancel_button" onclick="history.go(-1);">Back</button>
 				</div>
-			</div>
-			
-		</form>
-	
+			</div>			
+		</form>	
 	</div>
+
+	<div class="footer">
+		<div class="row">
+			<br>
+			<br>
+		</div>
+	</div>
+
+	<script>
+		function checkInput(textbox) {
+			 var textInput = document.getElementById(textbox).value;
+			 var len=textInput.length;
+			if(len==11){
+				$.get('getname.php', { uid:$("#entry_n").val() }).done(function(data){
+					var obj = JSON.parse(data);				
+					$('#name').val(obj.name);
+					$('#cat').val(obj.cat);
+				});
+			}
+			else 
+			{
+				$('#name').val("");
+				$('#cat').val("");
+			}
+		}
+	</script>
 	
-	
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
+	<script src="script/jquery.js"></script>
+	<script src="js/bootstrap.min.js"></script>
 	</body>	
 </html>
