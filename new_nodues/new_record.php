@@ -29,15 +29,16 @@
 			die;
 		}
 		else{
-			$emp_id = $_SESSION["emp_no"];
+			$emp_no = $_SESSION["emp_no"];
 		}
 		
 		if(isset($_GET["lab_id"])){
 			$id = $_GET["lab_id"];
-			if(isset($_SESSION["department".$id]) && isset($_SESSION["lab_id".$id]) && isset($_SESSION["lab_name".$id])){
+			if(isset($_SESSION["department_code".$id]) && isset($_SESSION["department_code".$id]) && isset($_SESSION["lab_code".$id]) && isset($_SESSION["lab_name".$id])){
 				$lab_name = $_SESSION["lab_name".$id];
-				$lab_id = $_SESSION["lab_id".$id];
-				$dept_name = $_SESSION["department".$id];
+				$lab_code = $_SESSION["lab_code".$id];
+				$department_name = $_SESSION["department_code".$id];
+				$department_code = $_SESSION["department_name".$id];
 			}
 			else{
 				echo "Data not found".
@@ -63,15 +64,7 @@
 			}
 			else{
 				$categ = (test_input($_POST["cat"]));
-			}
-			
-			if(empty($_POST["type"])){
-				$typeErr = "Choose one type";
-				//$correct_entry = false;
-			}
-			else{
-				$type = test_input($_POST["type"]);
-			}
+			}		
 			
 			if(empty($_POST["description"])){
 				$descErr = "Required Field";
@@ -89,19 +82,31 @@
 				$amount = test_input($_POST["amount"]);
 			}
 		}
-		
 		if($correct_entry){
-
-			
-			$add_rec_sql = "INSERT INTO dues ('amount', 'description', 'generated_time', 'modified_time', 'status', 'entry_number','employee_code','lab_code') VALUES ( '$amount', '$description', now(), '0000-00-00 00:00:00', 'P', $entry_num', '$lab_id', '$emp_id',)";
+			echo $amount.' '.$description.' '.$entry_num.' '.$emp_no.' '.$lab_code;
+			$add_rec_sql = "INSERT INTO dues (
+									amount, 
+									description, 
+									generated_time, 
+									modified_time, 
+									status,
+									entry_number,
+									employee_uID,
+									lab_code) VALUES ( 
+									'$amount', 
+									'$description', 
+									now(), 
+									'0000-00-00 00:00:00', 
+									'P', 
+									'$entry_num', 
+									'$emp_no', 
+									'$lab_code');";
 			$add_result = $con->query($add_rec_sql);
+			echo $add_result;
 			if ($add_result){
-				//echo "Record Has been Successfully ADDED;";
-				header("Location: http://testportal.iitd.ac.in/new_nodues/lab_index2.php?id=$id");
+				header("Location: http://testportal.iitd.ac.in/new_nodues/lab_index.php?id=$id");
 				exit();
 			}
-			//echo $add_result;
-			
 		}
 		
 		function test_input($data){
@@ -112,17 +117,12 @@
 		}
 	?>
 	
-	
-	<div class="container">
-
-	
+	<div class="container">	
 		<h3 class="col-sm-offset-1">Add a new record:</h3>
 		<p><span class="col-sm-offset-1 error"> * Required field. </span></p>
-		<br>
-			
-		<form class="form-horizontal" method="post" action="">
-		
+		<br>	
 
+		<form class="form-horizontal" method="post" action="">
 			<div class="form-group">
 				<label class="control-lablel col-sm-offset-1 col-sm-2">Entry No:</label>
 				<div class="col-sm-3">
@@ -130,8 +130,7 @@
 				</div>
 				<span class="error">* <?php echo $entryErr; ?> </span>
 			</div>
-			<!--<span class="error">* <?php// echo $nameErr;?></span>-->
-
+			
 			<div class="form-group">
 				<label class="control-lablel col-sm-offset-1 col-sm-2">Name</label>
 				<div class="col-sm-3">
@@ -141,7 +140,7 @@
 			</div>
 
 			<div class="form-group">
-				<label class="control-lablel col-sm-offset-1 col-sm-2">Category</label>
+				<label class="control-lablel col-sm-offset-1 col-sm-2">Programme</label>
 				<div class="col-sm-3">
 					<input class="form-control" placeholder="category" type="text" name="cat"  id="cat" readonly>
 				</div>
@@ -152,33 +151,21 @@
 			<div class="form-group">
 				<label class="control-lablel col-sm-offset-1 col-sm-2">Department:</label>
 				<div class="col-sm-3">
-					<input class="form-control" type="text" name="department" value="<?php echo $dept_name;?>" readonly>
+					<input class="form-control" type="text" name="department" value="<?php echo $department_name;?>" readonly>
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label class="control-lablel col-sm-offset-1 col-sm-2">Lab Id:</label>
+				<label class="control-lablel col-sm-offset-1 col-sm-2">Lab Name:</label>
 				<div class="col-sm-3">
-					<input class="form-control" type="text" name="lab_id" value="<?php echo $lab_id;?>" readonly>
+					<input class="form-control" type="text" name="lab_name" value="<?php echo $lab_name;?>" readonly>
 				</div>
-			</div>
-			
-			<div class="form-group">
-				<label class="control-lablel col-sm-2 col-sm-offset-1">Type:</label>
-				<div class="col-sm-3">
-					<select class="form-control">
-						<option name="type" value="<?php echo $type;?>">Select type</option>
-						<option name="type" value="breakage">Breakage</option>
-						<option name="type" value="others">Others</option>
-					</select>
-				</div>
-				<span class="error">* <?php echo $typeErr; ?> </span>
-			</div>
+			</div>			
 			
 			<div class="form-group">
 				<label class="control-lablel col-sm-2 col-sm-offset-1">Description:</label>
 				<div class="col-sm-7">
-					<textarea class="form-control" rows="5" column="40" name="description"><?php echo $description; ?></textarea>
+					<textarea class="form-control" rows="2" column="40" name="description"><?php echo $description; ?></textarea>
 				</div>
 				<span class="error">* <?php echo $descErr; ?> </span>
 			</div>
@@ -198,50 +185,39 @@
 				</div>
 				
 				<div class="col-sm-offset-1 col-sm-3">
-					<button class="form-control btn btn-danger" type="reset" name="cancle_button">Cancel</button>
+					<button class="form-control btn btn-danger" type="reset" name="cancel_button">Cancel</button>
 				</div>
-			</div>
-			
-		</form>
-	
+			</div>			
+		</form>	
 	</div>
 
-	<script>
-
-	function checkInput(textbox) {
-		 var textInput = document.getElementById(textbox).value;
-		 var len=textInput.length;
-		if(len==11){
-
-			$.get('getname.php', { uid:$("#entry_n").val() }).done(function(data){
-
-				var obj = JSON.parse(data);
-				
-				$('#name').val(obj.name);
+	<div class="footer">
+		<div class="row">
+			<br>
+			<br>
+		</div>
+	</div>
 
 
-				$('#cat').val(obj.cat);
-
-
-
-
-
-
-			});
+		<script>
+		function checkInput(textbox) {
+			 var textInput = document.getElementById(textbox).value;
+			 var len=textInput.length;
+			if(len==11){
+				$.get('getname.php', { uid:$("#entry_n").val() }).done(function(data){
+					var obj = JSON.parse(data);				
+					$('#name').val(obj.name);
+					$('#cat').val(obj.cat);
+				});
+			}
+			else 
+			{
+				$('#name').val("");
+				$('#cat').val("");
+			}
 		}
-		else 
-		{
-			$('#name').val("");
-			$('#cat').val("");
-		}
-		  
-	}
-
-	</script>
-	
-	
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<script src="script/jquery.js"></script>
+		</script>
+		<script src="script/jquery.js"></script>		
+		<script src="js/bootstrap.min.js"></script>		
 	</body>	
 </html>

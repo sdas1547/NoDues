@@ -28,23 +28,23 @@
 		}
 		else{
 			$id = $_GET["id"] ;
-			if(isset($_SESSION["department".$id]) && isset($_SESSION["lab_id".$id]) && isset($_SESSION["lab_name".$id])){
+			if(isset($_SESSION["department_code".$id]) && isset($_SESSION["department_code".$id]) && isset($_SESSION["lab_code".$id]) && isset($_SESSION["lab_name".$id])){
+
 				$lab_name = $_SESSION["lab_name".$id];
-				$lab_id = $_SESSION["lab_id".$id];
-				$department = $_SESSION["department".$id];
+				$lab_code = $_SESSION["lab_code".$id];
+				$department_code = $_SESSION["department_code".$id];
+				$department_name = $_SESSION["department_name".$id];
 			}
 			else{
 				echo "Data not found".
 				die;
 			}
-		}
-		
+		}		
 	?>
 	
 	<body>
 		<div class="container">
-			<div class="row">
-			
+			<div class="row">			
 				<ul class="col-sm-offset-0">
 					<li><a href="#">Frequently Asked Questions (FAQs) </a></li>
 					<li><a href="#">User Manual- Lab Instructor</a></li>
@@ -76,7 +76,8 @@
 						<div class="tab-content">
 							<div id="pending" class="tab-pane fade">
 								<?php
-									$pending_sql1 = "CREATE OR REPLACE VIEW dues_details AS
+									$dues_details = "dues_details".$emp_no;
+									$pending_sql1 = "CREATE OR REPLACE VIEW $dues_details AS
 														SELECT dueID,amount,description, 
 															generated_time, modified_time, status, entry_number
 															FROM dues
@@ -85,11 +86,13 @@
 
 									$pending_sql = "SELECT dueID, entry_number,amount,
 														generated_time, description
-														FROM dues_details
+														FROM $dues_details
 															WHERE status = 'P';";
+									$pending_drop_sql = "DROP VIEW $dues_details;";
 
 									$pending_result1 = $con->query($pending_sql1);
 									$pending_result = $con->query($pending_sql);
+									$con->query($pending_drop_sql);
 									$pending_rows = mysqli_num_rows($pending_result);
 									if($pending_rows>0){									
 								?>
@@ -100,7 +103,7 @@
 											<th>Added on</th>											
 											<th>Amount (in Rs.)</th>
 											<th>Description</th>
-											<th>Edit/Delete</th>
+											<th>Edit/ Delete</th>
 											<th>View</th>
 										</tr>
 										<?php
@@ -114,7 +117,7 @@
 												<td>".$pending_data["amount"]."</td>
 												<td>".$pending_data["description"]."</td>";												
 										?>
-												<td><a href="./edit_record.php?due_id=<?php echo $pending_data["dueID"];?>&lab_id=<?php echo $id;?>">Edit</a><br><a href="./delete_record.php?due_id=<?php echo $pending_data["dueID"];?>&lab_id=<?php echo $id;?>">Delete</a></td>
+												<td><a href="./edit_record.php?due_id=<?php echo $pending_data["dueID"];?>&lab_id=<?php echo $id;?>">Edit</a>/ <a href="./delete_record.php?due_id=<?php echo $pending_data["dueID"];?>&lab_id=<?php echo $id;?>">Delete</a></td>
 										<?php
 												echo "<td><a href='./view_due.php?due_id=".$pending_data["dueID"]."'>View</a>  </td></tr>";												
 												
@@ -130,16 +133,32 @@
 							</div>
 							<div id="clearence" class="tab-pane fade in active">
 								<?php
-									$pending_sql1 = "CREATE OR REPLACE VIEW duesr_details AS
-														SELECT dues_details.dueID, requested_time,
+
+									$dues_details = "dues_details".$emp_no;
+									$pending_sql1 = "CREATE OR REPLACE VIEW $dues_details AS
+														SELECT dueID,amount,description, 
+															generated_time, modified_time, status, entry_number
+															FROM dues
+																WHERE employee_uID = '$emp_no'
+																AND lab_code = 'col01';";
+
+									$duesr_details = "duesr_details".$emp_no;
+									$pending_sql2 = "CREATE OR REPLACE VIEW $duesr_details AS
+														SELECT $dues_details.dueID, requested_time,
 															requested_comment, entry_number, amount
-															FROM dues_details, duesra
-																WHERE dues_details.dueID = duesra.dueID
+															FROM $dues_details , duesra
+																WHERE $dues_details.dueID = duesra.dueID
 																AND status = 'R';";
 									$pending_sql = "SELECT * 
-														FROM duesr_details;";
-									$pending_result1 = $con->query($pending_sql1);					
+														FROM $duesr_details;";
+
+									$duesr_drop_sql = "DROP VIEW $dues_details, $duesr_details;";
+
+									$pending_result1 = $con->query($pending_sql1);
+									$pending_result1 = $con->query($pending_sql2);
 									$pending_result = $con->query($pending_sql);
+									$con->query($duesr_drop_sql);
+
 									$clearence_rows = mysqli_num_rows($pending_result);
 									if($clearence_rows>0){
 								?>
@@ -165,7 +184,7 @@
 												<td>".$pending_data["requested_time"]."</td>
 												<td>".$pending_data["requested_comment"]."</td>";
 										?>
-												<td><a href="./approve_record.php?due_id=<?php echo $pending_data["due_id"];?>&lab_id=<?php echo $id;?>">Approve</a></td>
+												<td><a href="./approve_record.php?due_id=<?php echo $pending_data["dueID"];?>&lab_id=<?php echo $id;?>">Approve</a></td>
 										<?php
 												echo "<td><a href='./view_due.php?due_id=".$pending_data["dueID"]."'>View</a></td>";
 												echo "</tr>";												
@@ -182,11 +201,24 @@
 							</div>
 							<div id="cancelled" class="tab-pane fade">
 								<?php
+
+									$dues_details = "dues_details".$emp_no;
+									$pending_sql1 = "CREATE OR REPLACE VIEW $dues_details AS
+														SELECT dueID,amount,description, 
+															generated_time, modified_time, status, entry_number
+															FROM dues
+																WHERE employee_uID = '$emp_no'
+																AND lab_code = 'col01';";
+
 									$pending_sql = "SELECT dueID, entry_number,amount, generated_time,
 														modified_time, description
-														FROM dues_details
+														FROM ".$dues_details."
 															WHERE status ='C';";
+									$cancelled_drop_sql = "DROP VIEW $dues_details;";
+
+									$con->query($pending_sql1);
 									$pending_result = $con->query($pending_sql);
+									$con->query($cancelled_drop_sql);
 									$clearence_rows = mysqli_num_rows($pending_result);
 									if($clearence_rows>0){
 								?>
@@ -224,17 +256,31 @@
 							</div>
 							<div id="approved" class="tab-pane fade">
 								<?php
-									$pending_sql1 = "CREATE OR REPLACE VIEW duesa_details AS
-														SELECT dues_details.dueID, approved_time,
+
+									$dues_details = "dues_details".$emp_no;
+									$pending_sql1 = "CREATE OR REPLACE VIEW $dues_details AS
+														SELECT dueID,amount,description, 
+															generated_time, modified_time, status, entry_number
+															FROM dues
+																WHERE employee_uID = '$emp_no'
+																AND lab_code = 'col01';";
+
+									$duesa_details = "duesa_details".$emp_no;
+									$pending_sql2 = "CREATE OR REPLACE VIEW $duesa_details AS
+														SELECT $dues_details.dueID, approved_time,
 															approved_comment , entry_number, amount	
-															FROM dues_details, duesra
-																WHERE dues_details.dueID = duesra.dueID
+															FROM $dues_details, duesra
+																WHERE $dues_details.dueID = duesra.dueID
 																AND status = 'A';";
 									$pending_sql = "SELECT * 
-														FROM duesa_details;";
+														FROM $duesa_details;";
 
-									$pending_result1 = $con->query($pending_sql1);
+									$approved_drop_query = "DROP VIEW $dues_details, $duesa_details;";
+
+									$con->query($pending_sql1);
+									$pending_result2 = $con->query($pending_sql2);
 									$pending_result = $con->query($pending_sql);
+									$con->query($approved_drop_query);
 									$approved_rows = mysqli_num_rows($pending_result);
 									if($approved_rows>0){
 								?>
@@ -275,24 +321,15 @@
 				</ul>
 			</div>
 		</div>	
-	<script src="script/jquery.js"></script>
+		
+		<script src="script/jquery.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 
-
-
-
-		<script src="script/jquery.js">
-
-		</script>
 		<script>
 			var $rows = $('.table .data');
 			$('#filter').keyup(function() {
-
-
 				var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-
 				$rows.show().filter(function() {
-
 					var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
 					//alert(text);
 					return !~text.indexOf(val);

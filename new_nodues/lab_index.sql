@@ -19,6 +19,8 @@ CREATE OR REPLACE VIEW duesa_details AS
 			WHERE dues_details.dueID = duesra.dueID
 			AND status = 'A';
 
+--dropping views
+drop view duesa_details, duesr_details, dues_details;
 --Pendinng sql
 SELECT dueID, entry_number,amount,
 	generated_time, description
@@ -29,7 +31,7 @@ SELECT dueID, entry_number,amount,
 SELECT dueID, entry_number,amount,
 	modified_time, description,
 	FROM dues_details
-		WHERE status = "C";
+		WHERE status = 'C';
 
 --Clearence Request sql
 --QUERY--

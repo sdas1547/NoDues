@@ -13,8 +13,6 @@
 		include("./dbinfo.inc");
 			$due_id=$_POST['did'];
 		$target_dir = "./uploads/";
-
-
 		
 		$extension=pathinfo($_FILES["file_to_upload"]["name"])['extension'];
 		$target_file = $target_dir.$due_id.'_'.$_SESSION['entry_no'].'.'.$extension;
@@ -48,11 +46,32 @@
 			if(move_uploaded_file($_FILES["file_to_upload"]["tmp_name"],$target_file)){
 				//echo "The file ".basename($_FILES["file_to_upload"]["name"])." has been uploaded.";
 				$due_id = $_GET["due_id"];
-				$request_sql = "UPDATE dues SET current_status = 'E' WHERE due_id = '$due_id'";
+				$con->query("SET AUTOCOMMIT=0");
+				$con->query("START TRANSACTION");
+
+				$request_sql1 = "UPDATE dues SET
+									status = 'R'
+										WHERE dueID = $due_id;";
+				$request_sql = "INSERT INTO duesra (
+									dueID,
+									requested_comment,
+									requested_time) VALUES(
+									$due_id,
+									'new request',
+									now());";
+				$request_result1 = $con->query($request_sql1);
 				$request_result = $con->query($request_sql);
-				echo "<script type='text/javascript'>alert('submitted successfully!')</script>";
-				header("Location: http://testportal.iitd.ac.in/new_nodues/student_index.php");
-				exit();
+
+				if($request_result1 && $request_result){
+					$con->query("COMMIT");
+					// echo "<script type='text/javascript'>alert('submitted successfully!')</script>";
+					header("Location: http://testportal.iitd.ac.in/new_nodues/student_index.php");
+					exit();
+				}
+				else{
+					$con->query("ROLLBACK");
+				}
+				
 			}
 			else {
 				echo "Sorry, there was an error in uploading file.";
