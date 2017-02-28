@@ -25,13 +25,22 @@
 		$type = "";
 		
 		if(isset($_GET["due_id"]) && isset($_SESSION["emp_no"])){
+			$id = $_GET["lab_id"];
 			$due_id = $_GET["due_id"];
 			$emp_id = $_SESSION["emp_no"];
+			if(!isset($_SESSION["lab_id".$id])){
+				echo "Data Not found.";
+				die;
+			}
+			else{
+				$slab_id = $_SESSION["lab_id".$id];
+			}
 			
-			$due_sql="SELECT * FROM dues WHERE due_id='$due_id' AND created_by='$emp_id'";
+			$due_sql="SELECT * FROM dues WHERE due_id='$due_id' AND created_by='$emp_id' AND lab_id='$slab_id'";
 			$due_result = $con->query($due_sql);
-			if(!$due_result){
-				echo "zero";
+			if(!(mysqli_num_rows($due_result)>0)){
+				echo "No data found.";
+				die;
 			}
 			else{
 				while($row_data = $due_result->fetch_assoc()){
@@ -40,30 +49,65 @@
 					$entry_num = $row_data["entry_number"];
 					$description = $row_data["description"];
 					$amount = $row_data["amount"];
-					$filename="./uploads/".$due_id."_".$entry_num.".pdf";
 				}
 			}
 		}		
 		
 		$correct_entry = false;
+		
 		if($_SERVER["REQUEST_METHOD"]=="POST"){
 			$correct_entry = true;				
-		}
-		if($correct_entry){
-			$delete_rec_sql = "UPDATE dues SET `current_status` = 'Y', `modified_time`= now(), `closed_time` = now() WHERE due_id='$due_id' AND created_by='$emp_id'";
-			$delete_result = $con->query($delete_rec_sql);
-			if ($delete_result){
-				echo "Record Has been Successfully Approved;";
-				header("Location: http://localhost/new_nodues/lab_index.php");
-				exit();
+			if(empty($_POST["type"])){
+				$typeErr = "Choose one type";
+				//$correct_entry = false;
 			}
+			else{
+				$type = test_input($_POST["type"]);
+			}
+			
+			if(empty($_POST["description"])){
+				$descErr = "Required Field";
+				$correct_entry = false;
+			}
+			else{
+				$description = test_input($_POST["description"]);
+			}
+			
+			if($_POST["amount"]==0){
+				$amountErr = "Amount must be greater than 0";
+				$correct_entry = false;
+			}
+			else{
+				$amount = test_input($_POST["amount"]);
+			}
+		}
+		
+		if($correct_entry){
+			$update_rec_sql = "UPDATE dues SET `amount` = '$amount', `description` = '$description', `modified_time` = now(), `closed_time`= now() WHERE due_id='$due_id' AND created_by='$emp_id'";
+			$update_result = $con->query($update_rec_sql);
+			if ($update_result){
+				//echo "Record Has been Successfully Updated;";
+				header("Location: http://testportal.iitd.ac.in/new_nodues/lab_index2.php?id=$id");
+				exit();
+				
+			}
+			//echo $add_result;
+			
+		}
+		
+		function test_input($data){
+			$data = trim($data);
+			$data = stripslashes($data);
+			$data = htmlspecialchars($data);
+			return $data;
 		}
 	?>
 	
 	
 	<div class="container">
-		<hr>
-		<h3 class="col-sm-offset-1">Approve record:</h3>
+	
+		<h3 class="col-sm-offset-1">Edit record:</h3>
+		<p><span class="col-sm-offset-1 error"> * Required field. </span></p>
 		<br>
 			
 		<form class="form-horizontal" method="post" action="">
@@ -73,6 +117,7 @@
 					<input class="form-control" type="text" name="entry_num" value="<?php echo $entry_num;?>" readonly>
 				</div>
 			</div>
+			<!--<span class="error">* <?php// echo $nameErr;?></span>-->
 			
 			<div class="form-group">
 				<label class="control-lablel col-sm-offset-1 col-sm-2">Department:</label>
@@ -103,48 +148,36 @@
 			<div class="form-group">
 				<label class="control-lablel col-sm-2 col-sm-offset-1">Description:</label>
 				<div class="col-sm-7">
-					<textarea class="form-control" rows="5" column="40" name="description" readonly><?php echo $description; ?></textarea>
+					<textarea class="form-control" rows="5" column="40" name="description"><?php echo $description; ?></textarea>
 				</div>
+				<span class="error">* <?php echo $descErr; ?> </span>
 			</div>
 			
 			<div class="form-group">
 				<label class="control-lablel col-sm-2 col-sm-offset-1">Amount:</label>
 				<div class="col-sm-3">
-					<input class="form-control" placeholder="Enter Amount" type="number" min="1" name="amount" value="<?php echo $amount;?>" readonly>
+					<input class="form-control" placeholder="Enter Amount" type="number" min="1" name="amount" value="<?php echo $amount;?>">
 				</div>
+				<span class="error">* <?php echo $amountErr; ?> </span>
 			</div>
-
-
-			<div class="form-group">
-				<label class="control-lablel col-sm-2 col-sm-offset-1">Uploaded File</label>
-				<div class="col-sm-9">
-					<?php if(FILE_EXISTS($filename))
-						{
-							echo "<embed src=".$filename." width=800px height=600px/>";
-						}
-						else echo "No file available";
-			 		 ?>
-				</div>
-			</div>
-
 			<br>
 			<br>
-
 			<div class="form-group">
 				<div class="col-sm-offset-3 col-sm-3">
-					<button class="form-control btn btn-primary" type="submit" name="add_due_button">Confirm Approve</button>
+					<button class="form-control btn btn-primary" type="submit" name="add_due_button">Submit</button>
 				</div>
 				
 				<div class="col-sm-offset-1 col-sm-3">
 					<button class="form-control btn btn-danger" type="reset" name="cancle_button">Cancel</button>
 				</div>
 			</div>
-
+			
 		</form>
-		<hr>
 	
 	</div>
-	<script src="script/jquery.js"></script>
-	<script src="js/bootstrap.min.js"></script>
+	
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
 	</body>	
 </html>

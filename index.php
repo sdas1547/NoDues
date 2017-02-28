@@ -119,20 +119,48 @@ error_reporting(0);
     }
     else{
 
-        echo "<div style='margin-top:100px'>";
+        echo "<div style='margin-top:50px'>";
         echo "<a href=\"./login.php\"><button class='btn btn-primary'>Login with Kerebros</button></a>";
         echo "</div>";
 
+?>
+<br>
+<div class ="col-sm-6">
+<form method="POST" action="hod_login.php">
+    <label >Enter hod id</label>
+<input class="form-control" type="text" name="id">
+<br>
+<button class="btn btn-primary" type="submit" name="submit">HoD Login</button>
+
+</form>
+</div>
 
 
+<br>
+<br>
+<br>
 
-         echo "<div style='margin-top:100px'>";
-        echo "<a href=\"./new_nodues/hod_index.php\"><button class='btn btn-primary'>Hod Login</button></a>";
+<div class="col-sm-6">
+<?php
+
+
+       
+
+
+         echo "<div style='margin-top:50px'>";
+        echo "<a href=\"./new_nodues/ugs_index.php\"><button class='btn btn-primary'>UGS Login</button></a>";
+        
+
+        echo "                 "; 
+        echo "<a href=\"./new_nodues/pgs_index.php\"><button class='btn btn-primary'>PGS Login</button></a>";
         echo "</div>";
-        //echo "<a href=\"./login.php\">Click here to login</a>";
+
+
+
+
     }
 ?>
-             
+    </div>
        
         </div>
         
