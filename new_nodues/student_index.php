@@ -33,20 +33,9 @@
 				<ul>
 					<li><a href="#">Frequently Asked Questions (FAQs) </a></li>
 					<li><a href="#">User Manual-Student</a></li>
+					<li><a href="status.php">No Dues Clearance Status</a></li>
 				</ul>
-				<div class="col-sm-8 col-sm-offset-4">
-
-				<a href="status.php">
-					<button class="btn btn-primary">No Dues Clearance Status</button>
-					</a>
-				</div>
-
-
-
-					<hr>
-					<br>
-					<br>
-					<br>
+					<hr>					
 				<ul>
 					<li> <strong>My Dues</strong>
 						<br><br>

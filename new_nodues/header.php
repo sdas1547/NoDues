@@ -45,28 +45,44 @@
 					<ul class="nav navbar-nav navbar-right">
 					<?php
 						// echo $_SERVER['REQUEST_URI'];
-						if(strcmp($_SERVER['REQUEST_URI'], "/new_nodues/student_index.php")!=0 
-							&& strcmp($_SERVER['REQUEST_URI'], "/new_nodues/hod_index.php")!=0 
-							&& strcmp($_SERVER['REQUEST_URI'], "/new_nodues/ins_index.php")!=0 
+					if(strcmp($_SERVER['REQUEST_URI'], "/index")!=0
+						&& strcmp($_SERVER['REQUEST_URI'], "/")!=0
 						){
-					?>
-							<li class="col-sm-2">
-								<button type="button" id="back_button" class="btn btn-warning navbar-btn"  onclick="history.go(-1);">Back</button>
+						// echo $_SERVER["REQUEST_URI"];
+
+							if(strcmp($_SERVER['REQUEST_URI'], "/new_nodues/student_index.php")!=0 
+								&& strcmp($_SERVER['REQUEST_URI'], "/new_nodues/hod_index.php")!=0 
+								&& strcmp($_SERVER['REQUEST_URI'], "/new_nodues/ins_index.php")!=0 
+							){
+						?>
+								<li class="col-sm-2">
+									<button type="button" id="back_button" class="btn btn-warning navbar-btn"  onclick="history.go(-1);">Back</button>
+								</li>
+						<?php
+							}
+							
+						?>
+							<li class="col-sm-2 col-sm-offset-1">
+								<button type="button" id="home_button" class="btn btn-primary navbar-btn"  onclick=<?php echo "\"".$location_link."\"";?>>Home</button>
 							</li>
-					<?php
-						}
+							<li class="col-sm-3 col-sm-offset-1">
+								<button type="button" id="iitd_home_button" class="btn btn-primary navbar-btn" onclick="location.href='http://www.iitd.ac.in'">IITD Home</button>
+							</li>
+							<li class="col-sm-2 col-sm-offset-1">
+								<button type="button" id="logout_button" class="btn btn-danger navbar-btn" onclick="location.href='http://testportal.iitd.ac.in/logout.php'">Logout</button>
+							</li>
+							
 						
-					?>
-						<li class="col-sm-2 col-sm-offset-1">
-							<button type="button" id="home_button" class="btn btn-primary navbar-btn"  onclick=<?php echo "\"".$location_link."\"";?>>Home</button>
-						</li>
-						<li class="col-sm-3 col-sm-offset-1">
-							<button type="button" id="iitd_home_button" class="btn btn-primary navbar-btn" onclick="location.href='http://www.iitd.ac.in'">IITD Home</button>
-						</li>
-						<li class="col-sm-2 col-sm-offset-1">
-							<button type="button" id="logout_button" class="btn btn-danger navbar-btn" onclick="location.href='http://testportal.iitd.ac.in/logout.php'">Logout</button>
-						</li>
-						
+				<?php
+					}
+					else{
+				?>
+							<li class="col-sm-3 col-sm-offset-1">
+								<button type="button"  target = "_blank" id="iitd_home_button" class="btn btn-primary navbar-btn" onclick="window.open('http://www.iitd.ac.in')">IITD Home</button>
+							</li>
+				<?php
+					}					
+				?>
 					</ul>
 				</div>
 			</div>
