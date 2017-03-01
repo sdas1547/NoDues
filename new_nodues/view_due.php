@@ -8,15 +8,27 @@
 		<link href="./mystyle.css" rel="stylesheet">
 	</head>
 	<?php
+		ini_set('session.cache_limiter','public');
+		session_cache_limiter(false);
 		session_start();
+		// ini_set('session.cache_limiter','public');
+		// session_cache_limiter(false);
 		include("./header.php");
 		include("./dbinfo.inc");
 
-		if(isset($_GET["due_id"])){
+		if (isset($_GET["due_id"])){
 			$due_id = $_GET["due_id"];
 		}
-		else{	
-			echo "NO data found!";	
+		else if(isset($_POST["due_id"])){
+			$due_id = $_POST["due_id"];
+			$_SESSION["temp_dueID"] = $_POST["due_id"];
+		}
+		else if(isset($_SESSION["temp_dueID"])){	
+			$due_id = $_SESSION["temp_dueID"];
+		}
+		else{
+			echo "No data found.";
+			die;
 		}
 
 		
@@ -28,6 +40,15 @@
 		else if(isset($_SESSION["emp_no"])){
 			$state = 2;
 			$user = $_SESSION["emp_no"];
+		}
+		else if(isset($_POST["entry_number"])){
+			$state = 3;
+			$user = $_POST["entry_number"];
+			$_SESSION["temp_entry"] = $_POST["entry_number"];
+		}
+		else if(isset($_SESSION["temp_entry"])){
+			$state = 3;
+			$user = $_SESSION["temp_entry"];
 		}
 		else{
 			echo "You are not logged in";

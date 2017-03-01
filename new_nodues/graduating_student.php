@@ -8,6 +8,11 @@
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="./mystyle.css" rel="stylesheet">
 	</head>
+	<style>
+		.table {
+			font-size:15px;
+		}
+	</style>
 	<?php
 		session_start();
 		include ("./header.php");
@@ -36,13 +41,8 @@
 					else{
 						die;
 					}
-
-
-
-
 					$viewname="view_".$department;
 							$creating_view= "create or replace view ".$viewname." as select dues.entry_number,student_table.department_code,student_table.programme as category, sum(amount) as total_amount from dues join student_table where dues.entry_number=student_table.entry_number and (status='P' or status='R') and dues.entry_number in (select entry_num from likely_grad) and student_table.department_code='".$department."' group by entry_number";
-
 
 					if($programme=='ug'){
 							
@@ -53,15 +53,6 @@
 							 $pending_sql = "SELECT * FROM ".$viewname. " where category='mtech'";
 
 						}
-
-						
-
-
-
-
-
-
-
 
 				?>
 				</h4>
@@ -93,83 +84,62 @@
 
 							//echo $creating_view;
 							$create_view=$con->query($creating_view);
-							
-							
-
 							$pending_result = $con->query($pending_sql);
-
-							
 							$pending_rows = mysqli_num_rows($pending_result);
 
 							if($pending_rows>0){							
 						?>
-							<table class="table table-responsive table-striped table-hover" style="font-size:15">
-								<thead>
-									<th>S. No</th>
-									<th>Entry Number</th>
-									
-									<th>Amount</th>
-									<th>Action</th>
-								<thead>
-							<?php
-								$i = 1;
-								while($pending_data = $pending_result->fetch_assoc()){
-
-									$entr=$pending_data["entry_number"];
-
-									$que="SELECT * from likely_grad where entry_num='$entr' and category='".$programme."'";
-									$re = $con->query($que);
-							$rowss = mysqli_num_rows($re);
-							if($rowss>0){
-
-
-
-									echo "<tr class = data>
+								<table class="table table-responsive table-striped table-hover" style="font-size:15">
+									<thead>
+										<th>S. No</th>
+										<th>Entry Number</th>									
+										<th>Amount</th>
+										<th>Action</th>
+									<thead>
+								<?php
+									$i = 1;
+									while($pending_data = $pending_result->fetch_assoc()){
+										$entr=$pending_data["entry_number"];
+										$que="SELECT * from likely_grad where entry_num='$entr' and category='".$programme."'";
+										$re = $con->query($que);
+										$rowss = mysqli_num_rows($re);										
+										if($rowss>0){
+										echo "<tr class = data>
 											<td>".$i++."</td>
-											<td>".$pending_data["entry_number"]."</td>
-											
-											<td>".$pending_data["total_amount"]."</td>
-											<td><a>Details</a><td>";}
-								}
-							
-							echo "</table>";
-						
+											<td>".$pending_data["entry_number"]."</td>											
+											<td>".$pending_data["total_amount"]."</td>";
+								?>
+											<td>
+												<form style="margin:0px; padding:0px;" method="POST" action="./hod_student_view.php">
+													<input name="entry_number" value=<?php echo $entr;?> type="hidden">
+													<button type="submit" class="btn-link">View Details</button>
+												</form>
+											</td>
+						<?php
+										}
+									}
+								echo "</table>";					
 							}
 							else{
 								echo "<strong>No Records Found.</strong>";
 							}
-						
-
 						?>
 					</div>
 
-					
-
 					<div id="clear" class="tab-pane fade in active ">
-						
-
-
-<?php
-
-
+					<?php
 							//echo $creating_view;
 							$create_view=$con->query($creating_view);
-						$que="SELECT * from likely_grad where  department='".$department."'and category='".$programme."' and  hod_approval=0 and entry_num not in (select entry_number from ".$viewname.")";
-							
-
+							$que="SELECT * from likely_grad where  department='".$department."'and category='".$programme."' and  hod_approval=0 and entry_num not in (select entry_number from ".$viewname.")";
 							$pending_result = $con->query($que);
-
-							
 							$pending_rows = mysqli_num_rows($pending_result);
-
 							if($pending_rows>0){							
-						?>
+					?>
 							<table class="table table-responsive table-striped table-hover" style="font-size:15">
 								<thead>
 									<th>S. No</th>
 									<th>Entry Number</th>
-									
-									
+									<th>View</th>
 									<th>Action</th>
 								</thead>
 							<?php
@@ -179,121 +149,80 @@
 									$entr=$pending_data["entry_num"];
 									echo "<tr class = data>
 											<td>".$i++."</td>
-											<td>".$pending_data["entry_num"]."</td>
-											
-											
-											<td>";
-
-
-										
-
+											<td>".$pending_data["entry_num"]."</td>";
 											?>
+											<td>
+												<form style="margin:0px; padding:0px;" method="POST" action="./hod_student_view.php">
+													<input name="entry_number" value=<?php echo $entr;?> type="hidden">
+													<button type="submit" class="btn-link">View Details</button>
+												</form>
+											</td>
 
-											<form style="margin:0px; padding:0px;" method="POST" action="./hodapproval.php">
-												<input name="programme" value=<?php echo $programme;?> type=hidden>
-												<input name="entry" value=<?php echo $entr;?> type="hidden">
-												<button type="submit" class="btn btn-success btn-sm">Approve</button>
-											
-											</form>
-
-											<?php echo "</td>";
-
-
-
+											<td>
+												<form style="margin:0px; padding:0px;" method="POST" action="./hodapproval.php">
+													<input name="programme" value=<?php echo $programme;?> type=hidden>
+													<input name="entry" value=<?php echo $entr;?> type="hidden">
+													<button type="submit" class="btn-link">Approve</button>
+												</form>
+											</td>
+								<?php 
 										}
-								
-							
 							echo "</table>";
 						
 							}
 							else{
 								echo "<strong>No Records Found.</strong>";
 							}
-						
-
 						?>
-
-
-
-
-</div>
+					</div>
 
 				
 					<div id="approved" class="tab-pane fade">
 
-
-
-
-
-<?php
-
-
-							//echo $creating_view;
-							$create_view=$con->query($creating_view);
+					<?php
+						//echo $creating_view;
+						$create_view=$con->query($creating_view);
 						$que="SELECT * from likely_grad where  department='".$department."' and  hod_approval=1 and category='".$programme."'";
-							
+						$pending_result = $con->query($que);
+						$pending_rows = mysqli_num_rows($pending_result);
 
-							$pending_result = $con->query($que);
-
-							
-							$pending_rows = mysqli_num_rows($pending_result);
-
-							if($pending_rows>0){							
+						if($pending_rows>0){							
 						?>
 							<table class="table table-responsive table-striped table-hover" style="font-size:15">
 								<thead>
 									<th>S. No</th>
 									<th>Entry Number</th>
-									
-									
-									<th>Status</th>
+									<th>View</th>
 								</thead>
 							<?php
 								$i = 1;
 								while($pending_data = $pending_result->fetch_assoc()){
-
 									$entr=$pending_data["entry_num"];
 									echo "<tr class = data>
 											<td>".$i++."</td>
-											<td>".$pending_data["entry_num"]."</td>
-											
-											
-											<td>Approved</td>";
-
-
-
-										}
-								
-							
+											<td>".$pending_data["entry_num"]."</td>";
+							?>				
+											<td>
+												<form style="margin:0px; padding:0px;" method="POST" action="./hod_student_view.php">
+													<input name="entry_number" value=<?php echo $entr;?> type="hidden">
+													<button type="submit" class="btn-link">View Details</button>
+												</form>
+											</td>
+							<?php
+								}
 							echo "</table>";
-						
 							}
 							else{
 								echo "<strong>No Records Found.</strong>";
 							}
-						
-
 						?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 					</div>
 				</div>
+				<hr>
 			</div>
 		</div>
 		
+		<script src="script/jquery.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		
 		

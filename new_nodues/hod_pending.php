@@ -130,17 +130,20 @@
 								while($pending_data = $pending_result->fetch_assoc()){
 
 									$entr=$pending_data["entry_number"];
-
-									
-
-
 									echo "<tr class = data>
-											<td>".$i++."</td>
-											<td>".$pending_data["entry_number"]."</td>
-											
-											<td>".$pending_data["total_amount"]."</td>
-											<td><a>Details</a><td>";}
-								
+										<td>".$i++."</td>
+										<td>".$pending_data["entry_number"]."</td>
+										
+										<td>".$pending_data["total_amount"]."</td>";
+							?>
+										<td>
+											<form style="margin:0px; padding:0px;" method="POST" action="./hod_student_view.php">
+												<input name="entry_number" value=<?php echo $entr;?> type="hidden">
+												<button type="submit" class="btn-link">View Details</button>
+											</form>
+										</td>
+							<?php
+									}	
 							
 							echo "</table>";
 						

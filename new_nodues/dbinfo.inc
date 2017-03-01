@@ -1,7 +1,7 @@
 <?php
 $db_username="root";
 $db_password="";
-$db_database="n_nodues";
+$db_database="nodue";
 $db_server="localhost";
 
 $con=new mysqli($db_server,$db_username,$db_password,$db_database);
