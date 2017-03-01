@@ -12,8 +12,9 @@
 		session_start();
 		include ("./header.php");
 		include("./dbinfo.inc");
-		$emp_no = "emp01";
-		$_SESSION["emp_no"]="emp01";
+		$emp_no = $_SESSION['emp_no'];
+		
+		//echo $emp_no;
 		$labAssigned = "labAssigned".$emp_no;
 		$lab_sql1 = 	"CREATE OR REPLACE VIEW $labAssigned AS
 						SELECT lab_code

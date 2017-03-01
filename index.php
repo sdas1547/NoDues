@@ -128,7 +128,7 @@ error_reporting(0);
 <div class ="col-sm-6">
 <form method="POST" action="hod_login.php">
     <label >Enter hod id</label>
-<input class="form-control" type="text" name="id">
+<input class="form-control" type="text" name="id" required>
 <br>
 <button class="btn btn-primary" type="submit" name="submit">HoD Login</button>
 
@@ -139,6 +139,29 @@ error_reporting(0);
 <br>
 <br>
 <br>
+
+
+
+
+
+
+<br>
+<div class ="col-sm-6">
+<form method="POST" action="lab_login.php">
+    <label >Enter lab instructor id</label>
+<input class="form-control" type="text" name="lab_id" required>
+<br>
+<button class="btn btn-primary" type="submit" name="submitlab">Lab Instructor Login</button>
+
+</form>
+</div>
+
+
+<br>
+<br>
+<br>
+
+
 
 <div class="col-sm-6">
 <?php

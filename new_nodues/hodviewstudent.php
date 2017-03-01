@@ -17,13 +17,16 @@
 		include ("./header.php");
 		session_start();
 		include ("./dbinfo.inc");
-		if (!isset($_SESSION["login_id"])){
+		if (!isset($_SESSION["admin_id"])){
 			header ("Location: ../index.php");
 			die;
 		}
 		else{
-			$entry_number = $_SESSION["entry_no"];
+			$admin_id = $_SESSION["admin_id"];
 		}
+
+		$entry_number=$_POST["entry"];
+
 	?>	
 
 	<body>
@@ -34,21 +37,10 @@
 					<li><a href="#">Frequently Asked Questions (FAQs) </a></li>
 					<li><a href="#">User Manual-Student</a></li>
 				</ul>
-				<div class="col-sm-8 col-sm-offset-4">
-
-				<a href="status.php">
-					<button class="btn btn-primary">No Dues Clearance Status</button>
-					</a>
-				</div>
-
-
-
+				
 					<hr>
-					<br>
-					<br>
-					<br>
 				<ul>
-					<li> <strong>My Dues</strong>
+					<li> <strong><?php echo "Dues for ".$entry_number;?></strong>
 						<br><br>
 						<ul class="nav nav-tabs">
 							<li class="active" role="presentation">
@@ -125,7 +117,7 @@
 											<th>Lab Name</th>
 											<th>Added by</th>									
 											<th>Added on</th>										
-											<th>Request</th>
+											
 											<th> View</th>
 										</tr>
 								<?php
@@ -137,13 +129,11 @@
 											<td>".$data["description"]."</td>
 											<td>".$data["lab_name"]."</td>
 											<td>".$data["name"]."</td>
-											<td>".$data["generated_time"]."</td> <td>";
+											<td>".$data["generated_time"]."</td>";
 								?>
-											<a href="./make_request.php?due_id=<?php echo $data["dueID"];?>">
-												Request
-											</a>
+											
 								<?php
-											echo "</td>";
+											
 											echo "<td><a href='./view_due.php?due_id=".$data["dueID"]."'>View</a>";
 											echo "</tr>";
 										}	
@@ -224,7 +214,7 @@
 											<th>Lab Name</th>										
 											<th>Requested on</th>
 											<th>Requested Comment</th>
-											<th> Edit Request </th>
+											
 											<th> View </th>
 										</tr>
 								<?php
@@ -237,9 +227,7 @@
 											<td>".$data["requested_time"]."</td>
 											<td>".$data["requested_comment"]."</td><td>";
 								?>
-											<a href="./make_request.php?due_id=<?php echo $data["dueID"];?>">
-												Edit Request
-											</a>
+											
 								<?php
 											echo "</td><td><a href='./view_due.php?due_id=".$data["dueID"]."'>View</a>";
 											echo "</tr>";
